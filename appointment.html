@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment - CarePlus Clinic</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 font-sans">
+  <div class="container mx-auto px-6 py-16">
+    <h2 class="text-3xl font-bold text-blue-900 text-center">Book an Appointment</h2>
+    <p class="text-gray-600 text-center mt-2">Fill in the form below to schedule your visit.</p>
+    
+    <form class="bg-white max-w-lg mx-auto mt-10 p-8 rounded-lg shadow">
+      
+      <!-- Name Fields in One Line -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <!-- Last Name -->
+        <label class="block">
+          <span class="text-gray-700">Last Name</span>
+          <input type="text" class="mt-1 w-full p-3 border rounded" required>
+        </label>
+
+        <!-- First Name -->
+        <label class="block">
+          <span class="text-gray-700">First Name</span>
+          <input type="text" class="mt-1 w-full p-3 border rounded" required>
+        </label>
+
+        <!-- Middle Name -->
+        <label class="block">
+          <span class="text-gray-700">Middle Name</span>
+          <input type="text" class="mt-1 w-full p-3 border rounded">
+        </label>
+      </div>
+
+      <!-- Age -->
+      <label class="block mb-4">
+        <span class="text-gray-700">Age</span>
+        <input type="number" min="0" class="mt-1 w-full p-3 border rounded" required>
+      </label>
+
+      <!-- Email -->
+      <label class="block mb-4">
+        <span class="text-gray-700">Email</span>
+        <input type="email" class="mt-1 w-full p-3 border rounded" required>
+      </label>
+
+      <!-- Phone -->
+      <label class="block mb-4">
+        <span class="text-gray-700">Phone</span>
+        <input type="tel" class="mt-1 w-full p-3 border rounded" required>
+      </label>
+
+      <!-- Preferred Date with Booking Info -->
+      <label class="block mb-4">
+        <span class="text-gray-700">Preferred Date</span>
+        <input type="date" id="preferredDate" class="mt-1 w-full p-3 border rounded" required>
+        <p id="bookingInfo" class="mt-2 text-sm"></p>
+      </label>
+
+      <!-- Message / Symptoms -->
+      <label class="block mb-6">
+        <span class="text-gray-700">Message / Symptoms</span>
+        <textarea class="mt-1 w-full p-3 border rounded" rows="4"></textarea>
+      </label>
+
+      <button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Submit</button>
+    </form>
+  </div>
+
+  <!-- Script for Booking Limit -->
+  <script>
+    // Example booked data (date: number of bookings)
+    const bookedSlots = {
+      "2025-08-20": 12,
+      "2025-08-21": 25,
+      "2025-08-22": 30 // fully booked
+    };
+
+    const maxClientsPerDay = 30;
+    const dateInput = document.getElementById("preferredDate");
+    const bookingInfo = document.getElementById("bookingInfo");
+
+    dateInput.addEventListener("change", () => {
+      const selectedDate = dateInput.value;
+      const bookedCount = bookedSlots[selectedDate] || 0;
+      const remaining = maxClientsPerDay - bookedCount;
+
+      if (bookedCount >= maxClientsPerDay) {
+        bookingInfo.textContent = `❌ Fully booked. Please choose another date.`;
+        bookingInfo.className = "mt-2 text-sm text-red-600 font-semibold";
+        dateInput.setCustomValidity("This date is fully booked");
+      } else {
+        bookingInfo.textContent = `✅ ${bookedCount} already booked. ${remaining} slots remaining.`;
+        bookingInfo.className = "mt-2 text-sm text-green-600 font-semibold";
+        dateInput.setCustomValidity(""); // clear warning
+      }
+    });
+  </script>
+</body>
+</html>
