@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-screen bg-gray-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CITY HEALTH CARE PREBOOK</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans">
+
+  <!-- Header (logo + nav) -->
+  <header class="bg-blue-900 text-white shadow">
+    <div class="container mx-auto flex items-center justify-between p-4">
+      <h1 class="text-2xl font-bold">CITY HEALTH OFFICE</h1>
+      <nav class="space-x-4 text-sm">
+        <a href="#" class="hover:underline">Home</a>
+        <a href="#" class="hover:underline">About</a>
+        <a href="#" class="hover:underline">Services</a>
+        <a href="#" class="hover:underline">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto flex flex-col items-center justify-center py-16 space-y-12">
+
+    <h2 class="text-3xl font-semibold text-blue-900 mb-6">Please Select Your Role</h2>
+
+    <!-- Role Cards Container (Vertical) -->
+    <div class="flex flex-col space-y-8 w-full max-w-md">
+
+      <!-- 1⃣ Patient Card -->
+      <div class="bg-white p-8 rounded-xl shadow transition transform hover:-translate-y-2 hover:scale-105 hover:shadow-2xl hover:ring-4 hover:ring-yellow-300 cursor-pointer"
+           onclick="document.getElementById('patientOptions').classList.toggle('hidden')">
+        <h3 class="text-2xl font-semibold mb-4 text-blue-900">Patient</h3>
+        <p class="text-gray-600 mb-4">Book now or walk in.</p>
+        <button class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700 hover:scale-105 transition">
+          Select Patient
+        </button>
+        <!-- Hidden Sub-options -->
+        <div id="patientOptions" class="mt-6 space-y-3 hidden">
+          <button class="block w-full text-left bg-yellow-200 px-4 py-3 rounded-lg shadow hover:bg-yellow-300 hover:scale-105 transition">
+            Walk-In
+          </button>
+          <button class="block w-full text-left bg-yellow-200 px-4 py-3 rounded-lg shadow hover:bg-yellow-300 hover:scale-105 transition">
+            Appointment
+          </button>
+        </div>
+      </div>
+
+      <!-- 2⃣ Staff Card -->
+      <div class="bg-white p-8 rounded-xl shadow transition transform hover:-translate-y-2 hover:scale-105 hover:shadow-2xl hover:ring-4 hover:ring-yellow-300 cursor-pointer">
+        <h3 class="text-2xl font-semibold mb-4 text-blue-900">Healthcare Staff</h3>
+        <p class="text-gray-600 mb-4">Check schedules and patients.</p>
+        <button class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700 hover:scale-105 transition">
+          Select Staff
+        </button>
+      </div>
+
+      <!-- 3⃣ Admin Card (moved to bottom) -->
+      <div class="bg-white p-8 rounded-xl shadow transition transform hover:-translate-y-2 hover:scale-105 hover:shadow-2xl hover:ring-4 hover:ring-yellow-300 cursor-pointer">
+        <h3 class="text-2xl font-semibold mb-4 text-blue-900">Admin</h3>
+        <p class="text-gray-600 mb-4">Manage system and appointments.</p>
+        <button class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700 hover:scale-105 transition">
+          Select Admin
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
