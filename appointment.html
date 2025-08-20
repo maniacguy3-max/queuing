@@ -3,102 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Appointment - City Health Office</title>
+  <title>Book Appointment - CHO</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-  
 <body class="bg-blue-50 font-sans">
+
+  <!-- Top Navbar -->
+  <header class="bg-blue-900 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <h1 class="text-xl font-bold">CITY HEALTH OFFICE</h1>
+    </div>
+  </header>
+
+  <!-- Main Division -->
   <div class="container mx-auto px-6 py-16">
     <h2 class="text-3xl font-bold text-blue-900 text-center">Book an Appointment</h2>
     <p class="text-gray-600 text-center mt-2">Fill in the form below to schedule your visit.</p>
     
-    <form class="bg-white max-w-lg mx-auto mt-10 p-8 rounded-lg shadow">
-      
-      <!-- Name Fields in One Line -->
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <!-- Last Name -->
-        <label class="block">
-          <span class="text-gray-700">Last Name</span>
-          <input type="text" class="mt-1 w-full p-3 border rounded" required>
+    <!-- Appointment Form -->
+    <form id="appointmentForm" class="bg-white max-w-2xl mx-auto mt-10 p-8 rounded-lg shadow-lg border border-blue-200" onsubmit="return validateForm()">
+
+      <!-- Step 1: Personal Info -->
+      <div id="step1" class="form-step">
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <label class="block">
+            <span class="text-gray-700">Last Name *</span>
+            <input type="text" id="lastName" class="mt-1 w-full p-3 border rounded" required>
+          </label>
+          <label class="block">
+            <span class="text-gray-700">First Name *</span>
+            <input type="text" id="firstName" class="mt-1 w-full p-3 border rounded" required>
+          </label>
+          <label class="block">
+            <span class="text-gray-700">Middle Name</span>
+            <input type="text" id="middleName" class="mt-1 w-full p-3 border rounded">
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <label class="block">
+            <span class="text-gray-700">Age *</span>
+            <input type="number" id="age" min="0" class="mt-1 w-full p-3 border rounded" required>
+          </label>
+
+          <label class="block">
+            <span class="text-gray-700">Sex *</span>
+            <select id="sex" class="mt-1 w-full p-3 border rounded" required>
+              <option value="">-- Select --</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Prefer not to say</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="block mb-4">
+          <span class="text-gray-700">Email (Optional)</span>
+          <input type="email" id="email" class="mt-1 w-full p-3 border rounded">
         </label>
 
-        <!-- First Name -->
-        <label class="block">
-          <span class="text-gray-700">First Name</span>
-          <input type="text" class="mt-1 w-full p-3 border rounded" required>
+        <label class="block mb-6">
+          <span class="text-gray-700">Phone *</span>
+          <input type="tel" id="phone" class="mt-1 w-full p-3 border rounded" required>
         </label>
 
-        <!-- Middle Name -->
-        <label class="block">
-          <span class="text-gray-700">Middle Name</span>
-          <input type="text" class="mt-1 w-full p-3 border rounded">
-        </label>
+        <div class="mb-6">
+          <label class="block mb-3">
+            <span class="text-gray-700">Symptoms Category *</span>
+            <select id="symptomsCategory" class="mt-1 w-full p-3 border rounded" required>
+              <option value="">-- Select a Category --</option>
+              <option>Fever</option>
+              <option>Cough/Colds</option>
+              <option>Checkup</option>
+              <option>Skin Issue</option>
+              <option>Injury</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="text-gray-700">Specific Details (Optional)</span>
+            <textarea id="details" class="mt-1 w-full p-3 border rounded" rows="4" placeholder="Add more details if needed..."></textarea>
+          </label>
+        </div>
+
+        <!-- Next Button -->
+        <button type="button" onclick="nextStep()" class="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600">
+          Next
+        </button>
       </div>
 
-      <!-- Age -->
-      <label class="block mb-4">
-        <span class="text-gray-700">Age</span>
-        <input type="number" min="0" class="mt-1 w-full p-3 border rounded" required>
-      </label>
+      <!-- Step 2: Date & Time -->
+      <div id="step2" class="form-step hidden">
+        <label class="block mb-4">
+          <span class="text-gray-700">Preferred Date *</span>
+          <input type="date" id="date" class="mt-1 w-full p-3 border rounded" required>
+        </label>
 
-      <!-- Email -->
-      <label class="block mb-4">
-        <span class="text-gray-700">Email</span>
-        <input type="email" class="mt-1 w-full p-3 border rounded" required>
-      </label>
+        <label class="block mb-6">
+          <span class="text-gray-700">Preferred Time *</span>
+          <select id="time" class="mt-1 w-full p-3 border rounded" required>
+            <option value="">-- Select a Time --</option>
+            <option>6:00 AM</option>
+            <option>7:00 AM</option>
+            <option>8:00 AM</option>
+            <option>9:00 AM</option>
+            <option>10:00 AM</option>
+            <option>11:00 AM</option>
+            <option>12:00 PM</option>
+            <option>1:00 PM</option>
+            <option>2:00 PM</option>
+            <option>3:00 PM</option>
+            <option>4:00 PM</option>
+            <option>5:00 PM</option>
+          </select>
+        </label>
 
-      <!-- Phone -->
-      <label class="block mb-4">
-        <span class="text-gray-700">Phone</span>
-        <input type="tel" class="mt-1 w-full p-3 border rounded" required>
-      </label>
-
-      <!-- Preferred Date with Booking Info -->
-      <label class="block mb-4">
-        <span class="text-gray-700">Preferred Date</span>
-        <input type="date" id="preferredDate" class="mt-1 w-full p-3 border rounded" required>
-        <p id="bookingInfo" class="mt-2 text-sm"></p>
-      </label>
-
-      <!-- Message / Symptoms -->
-      <label class="block mb-6">
-        <span class="text-gray-700">Message / Symptoms</span>
-        <textarea class="mt-1 w-full p-3 border rounded" rows="4"></textarea>
-      </label>
-
-      <button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Submit</button>
+        <!-- Back + Submit Buttons -->
+        <div class="flex justify-between">
+          <button type="button" onclick="prevStep()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">
+            Back
+          </button>
+          <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+            Submit
+          </button>
+        </div>
+      </div>
     </form>
+
+    <!-- Queue Confirmation -->
+    <div id="queueResult" class="hidden bg-green-100 border border-green-400 text-green-800 max-w-2xl mx-auto mt-8 p-6 rounded-lg shadow-lg text-center">
+      <h3 class="text-2xl font-bold mb-4">✅ Appointment Confirmed!</h3>
+      <p id="queueInfo" class="text-lg font-semibold"></p>
+    </div>
   </div>
 
-  <!-- Script for Booking Limit -->
   <script>
-    // Example booked data (date: number of bookings)
-    const bookedSlots = {
-      "2025-08-20": 12,
-      "2025-08-21": 25,
-      "2025-08-22": 30 // fully booked
-    };
-
-    const maxClientsPerDay = 30;
-    const dateInput = document.getElementById("preferredDate");
-    const bookingInfo = document.getElementById("bookingInfo");
-
-    dateInput.addEventListener("change", () => {
-      const selectedDate = dateInput.value;
-      const bookedCount = bookedSlots[selectedDate] || 0;
-      const remaining = maxClientsPerDay - bookedCount;
-
-      if (bookedCount >= maxClientsPerDay) {
-        bookingInfo.textContent = `❌ Fully booked. Please choose another date.`;
-        bookingInfo.className = "mt-2 text-sm text-red-600 font-semibold";
-        dateInput.setCustomValidity("This date is fully booked");
-      } else {
-        bookingInfo.textContent = `✅ ${bookedCount} already booked. ${remaining} slots remaining.`;
-        bookingInfo.className = "mt-2 text-sm text-green-600 font-semibold";
-        dateInput.setCustomValidity(""); // clear warning
+    function nextStep() {
+      const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
+      for (let id of requiredStep1) {
+        if (!document.getElementById(id).value.trim()) {
+          alert("Please fill in all required fields before proceeding.");
+          return;
+        }
       }
-    });
-  </script>
-</body>
+      document.getElementById("step1").classList.add("hidden");
+      document.getElementById("step2").classList.remove("hidden");
+    }
 
+    function prevStep() {
+      document.getElementById("step2").classList.add("hidden");
+      document.getElementById("step1").classList.remove("hidden");
+    }
+
+    function validateForm() {
+      const requiredStep2 = ["date", "time"];
+      for (let id of requiredStep2) {
+        if (!document.getElementById(id).value.trim()) {
+          alert("Please select a date and time before submitting.");
+          return false;
+        }
+      }
+      
+      // Confirmation popup
+      const confirmSubmit = confirm("Please confirm that all the information you provided is correct. Do you want to submit?");
+      if (!confirmSubmit) {
+        return false;
+      }
+
+      // Generate queue number (simple simulation)
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const queueNumber = Math.floor(Math.random() * 100) + 1; // simulate
+
+      // Hide form and show result
+      document.getElementById("appointmentForm").classList.add("hidden");
+      document.getElementById("queueResult").classList.remove("hidden");
+
+      document.getElementById("queueInfo").innerText = 
+        `Your appointment is booked for ${date} at ${time}. Your Queue Number is: #${queueNumber}`;
+
+      return false; // prevent real submission
+    }
+  </script>
+
+</body>
 </html>
+
