@@ -3,204 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Appointment - CHO</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Book Appointment</title>
 </head>
-<body class="bg-white font-sans">
+<body>
+  <h2>Book Appointment</h2>
+  <form id="appointmentForm">
+    <label>Name:</label><br>
+    <input type="text" id="name" required><br><br>
 
-  <!-- Top Navbar -->
-  <header class="bg-blue-900 text-white shadow-md">
-    <div class="container mx-auto flex justify-between items-center p-4">
-      <h1 class="text-xl font-bold">CITY HEALTH CLINIC</h1>
-    </div>
-  </header>
+    <label>Age:</label><br>
+    <input type="number" id="age" required><br><br>
 
-  <!-- Main Division -->
-  <div class="container mx-auto px-6 py-16">
-    <h2 class="text-3xl font-bold text-blue-900 text-center">Book an Appointment</h2>
-    <p class="text-gray-600 text-center mt-2">Fill in the form below to schedule your visit.</p>
-    
-    <!-- Confirmation Message -->
-    <div id="confirmationBox" class="hidden max-w-2xl mx-auto mt-6 p-4 bg-green-100 text-green-800 border border-green-300 rounded-lg shadow-md"></div>
+    <label>Sex:</label><br>
+    <select id="sex" required>
+      <option value="">Select</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select><br><br>
 
-    <form id="appointmentForm" class="bg-white max-w-2xl mx-auto mt-6 p-8 rounded-lg shadow-lg border border-blue-200" onsubmit="return validateForm()">
+    <label>Symptoms:</label><br>
+    <input type="text" id="symptoms" required><br><br>
 
-      <!-- Step 1: Personal Info -->
-      <div id="step1" class="form-step">
-        <div class="grid grid-cols-3 gap-4 mb-4">
-          <label class="block">
-            <span class="text-gray-700">Last Name *</span>
-            <input type="text" id="lastName" class="mt-1 w-full p-3 border rounded" required>
-          </label>
-          <label class="block">
-            <span class="text-gray-700">First Name *</span>
-            <input type="text" id="firstName" class="mt-1 w-full p-3 border rounded" required>
-          </label>
-          <label class="block">
-            <span class="text-gray-700">Middle Name</span>
-            <input type="text" id="middleName" class="mt-1 w-full p-3 border rounded">
-          </label>
-        </div>
+    <label>Date:</label><br>
+    <input type="date" id="date" required><br><br>
 
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <label class="block">
-            <span class="text-gray-700">Age *</span>
-            <input type="number" id="age" min="0" class="mt-1 w-full p-3 border rounded" required>
-          </label>
+    <button type="submit">Submit</button>
+  </form>
 
-          <label class="block">
-            <span class="text-gray-700">Sex *</span>
-            <select id="sex" class="mt-1 w-full p-3 border rounded" required>
-              <option value="">-- Select --</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Prefer not to say</option>
-            </select>
-          </label>
-        </div>
+  <p id="message"></p>
 
-        <label class="block mb-4">
-          <span class="text-gray-700">Email (Optional)</span>
-          <input type="email" id="email" class="mt-1 w-full p-3 border rounded">
-        </label>
+  <!-- Firebase App -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
-        <label class="block mb-6">
-          <span class="text-gray-700">Phone *</span>
-          <input type="tel" id="phone" class="mt-1 w-full p-3 border rounded" required>
-        </label>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, get, child, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-        <div class="mb-6">
-          <label class="block mb-3">
-            <span class="text-gray-700">Symptoms Category *</span>
-            <select id="symptomsCategory" class="mt-1 w-full p-3 border rounded" required>
-              <option value="">-- Select a Category --</option>
-              <option>Fever</option>
-              <option>Cough/Colds</option>
-              <option>Checkup</option>
-              <option>Skin Issue</option>
-              <option>Injury</option>
-              <option>Other</option>
-            </select>
-          </label>
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlQ2h3WdhMHVl9nwz_Ug3ejscxtWuEtlE",
+      authDomain: "clinic-for-cho-queue.firebaseapp.com",
+      databaseURL: "https://clinic-for-cho-queue-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "clinic-for-cho-queue",
+      storageBucket: "clinic-for-cho-queue.firebasestorage.app",
+      messagingSenderId: "420319378706",
+      appId: "1:420319378706:web:6083b4ccd5338a7e9a07cb",
+      measurementId: "G-S9XQE2SKFZ"
+    };
 
-          <label class="block">
-            <span class="text-gray-700">Specific Details (Optional)</span>
-            <textarea id="details" class="mt-1 w-full p-3 border rounded" rows="4" placeholder="Add more details if needed..."></textarea>
-          </label>
-        </div>
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        <!-- Next Button -->
-        <button type="button" onclick="nextStep()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-yellow-500 transition duration-300">
-          Next
-        </button>
-      </div>
+    document.getElementById("appointmentForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
 
-      <!-- Step 2: Date & Time -->
-      <div id="step2" class="form-step hidden">
-        <label class="block mb-4">
-          <span class="text-gray-700">Preferred Date *</span>
-          <input type="date" id="date" class="mt-1 w-full p-3 border rounded" required>
-        </label>
+      const name = document.getElementById("name").value;
+      const age = document.getElementById("age").value;
+      const sex = document.getElementById("sex").value;
+      const symptoms = document.getElementById("symptoms").value;
+      const date = document.getElementById("date").value;
 
-        <label class="block mb-6">
-          <span class="text-gray-700">Preferred Time *</span>
-          <select id="time" class="mt-1 w-full p-3 border rounded" required>
-            <option value="">-- Select a Time --</option>
-            <option>6:00 AM</option>
-            <option>7:00 AM</option>
-            <option>8:00 AM</option>
-            <option>9:00 AM</option>
-            <option>10:00 AM</option>
-            <option>11:00 AM</option>
-            <option>12:00 PM</option>
-            <option>1:00 PM</option>
-            <option>2:00 PM</option>
-            <option>3:00 PM</option>
-            <option>4:00 PM</option>
-            <option>5:00 PM</option>
-          </select>
-        </label>
+      const dbRef = ref(db);
+      try {
+        // 1. Check if date already exists
+        const snapshot = await get(child(dbRef, "appointments"));
+        let exists = false;
+        let maxQueue = 0;
 
-        <!-- Back + Submit Buttons -->
-        <div class="flex justify-between">
-          <button type="button" onclick="prevStep()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-300">
-            Back
-          </button>
-          <button type="submit" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300">
-            Submit
-          </button>
-        </div>
-      </div>
+        if (snapshot.exists()) {
+          snapshot.forEach(childSnap => {
+            const data = childSnap.val();
+            if (data.date === date) {
+              exists = true;
+            }
+            if (data.queueNumber && data.queueNumber > maxQueue) {
+              maxQueue = data.queueNumber;
+            }
+          });
+        }
 
-    </form>
-  </div>
-
-  <script>
-    let bookedAppointments = {}; // Store appointments by date and time
-
-    function nextStep() {
-      const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
-      for (let id of requiredStep1) {
-        if (!document.getElementById(id).value.trim()) {
-          alert("Please fill in all required fields before proceeding.");
+        if (exists) {
+          document.getElementById("message").innerText = "❌ This date is already booked. Please select another.";
           return;
         }
+
+        // 2. Assign next queue number
+        const queueNumber = maxQueue + 1;
+
+        const appointment = {
+          name,
+          age,
+          sex,
+          symptoms,
+          date,
+          queueNumber,
+          timestamp: Date.now()
+        };
+
+        const newRef = push(ref(db, "appointments"));
+        await set(newRef, appointment);
+
+        document.getElementById("message").innerText = 
+          `✅ Appointment booked! Your queue number is: ${queueNumber}`;
+        document.getElementById("appointmentForm").reset();
+      } catch (error) {
+        document.getElementById("message").innerText = "❌ Error: " + error;
       }
-      document.getElementById("step1").classList.add("hidden");
-      document.getElementById("step2").classList.remove("hidden");
-
-      // Restrict calendar: disable today and past
-      const dateInput = document.getElementById("date");
-      const today = new Date();
-      today.setDate(today.getDate() + 1);
-      dateInput.min = today.toISOString().split("T")[0];
-    }
-
-    function prevStep() {
-      document.getElementById("step2").classList.add("hidden");
-      document.getElementById("step1").classList.remove("hidden");
-    }
-
-    function validateForm() {
-      const date = document.getElementById("date").value.trim();
-      const time = document.getElementById("time").value.trim();
-
-      if (!date || !time) {
-        alert("Please select a date and time before submitting.");
-        return false;
-      }
-
-      // Prevent overlapping schedule
-      if (bookedAppointments[date] && bookedAppointments[date].includes(time)) {
-        alert("This time slot is already booked. Please choose another.");
-        return false;
-      }
-
-      if (!bookedAppointments[date]) {
-        bookedAppointments[date] = [];
-      }
-      bookedAppointments[date].push(time);
-
-      // Queue number = position in that day's list
-      const queueNumber = bookedAppointments[date].length;
-
-      // Show confirmation message instead of alert
-      const confirmationBox = document.getElementById("confirmationBox");
-      confirmationBox.innerHTML = `
-        <strong>Appointment submitted successfully!</strong><br>
-        Your <b>Queue Number:</b> ${queueNumber}<br>
-        <b>Date:</b> ${date}<br>
-        <b>Time:</b> ${time}
-      `;
-      confirmationBox.classList.remove("hidden");
-
-      // Reset form for new submission
-      document.getElementById("appointmentForm").reset();
-      prevStep(); // Go back to Step 1
-
-      return false; // Prevent page reload
-    }
+    });
   </script>
-
 </body>
 </html>
