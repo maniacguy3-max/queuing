@@ -99,25 +99,13 @@
       <div id="step2" class="form-step hidden">
         <label class="block mb-4">
           <span class="text-gray-700">Preferred Date *</span>
-          <input type="date" id="date" class="mt-1 w-full p-3 border rounded" required>
+          <input type="date" id="date" class="mt-1 w-full p-3 border rounded" required onchange="updateTimeOptions()">
         </label>
 
         <label class="block mb-6">
           <span class="text-gray-700">Preferred Time *</span>
           <select id="time" class="mt-1 w-full p-3 border rounded" required>
             <option value="">-- Select a Time --</option>
-            <option>6:00 AM</option>
-            <option>7:00 AM</option>
-            <option>8:00 AM</option>
-            <option>9:00 AM</option>
-            <option>10:00 AM</option>
-            <option>11:00 AM</option>
-            <option>12:00 PM</option>
-            <option>1:00 PM</option>
-            <option>2:00 PM</option>
-            <option>3:00 PM</option>
-            <option>4:00 PM</option>
-            <option>5:00 PM</option>
           </select>
         </label>
 
@@ -136,7 +124,12 @@
   </div>
 
   <script>
-    let bookedAppointments = {}; // Store booked slots per day
+    let bookedAppointments = {}; 
+    const allTimes = [
+      "6:00 AM","7:00 AM","8:00 AM","9:00 AM","10:00 AM",
+      "11:00 AM","12:00 PM","1:00 PM","2:00 PM",
+      "3:00 PM","4:00 PM","5:00 PM"
+    ];
 
     function nextStep() {
       const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
@@ -149,7 +142,6 @@
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
 
-      // Restrict calendar: disable today and past
       const dateInput = document.getElementById("date");
       const today = new Date();
       today.setDate(today.getDate() + 1);
@@ -161,6 +153,27 @@
       document.getElementById("step1").classList.remove("hidden");
     }
 
+    function updateTimeOptions() {
+      const date = document.getElementById("date").value;
+      const timeSelect = document.getElementById("time");
+
+      // Clear old options
+      timeSelect.innerHTML = `<option value="">-- Select a Time --</option>`;
+
+      // Get booked times for that date
+      const booked = bookedAppointments[date] || [];
+
+      // Show only available times
+      allTimes.forEach(t => {
+        if (!booked.includes(t)) {
+          let option = document.createElement("option");
+          option.value = t;
+          option.textContent = t;
+          timeSelect.appendChild(option);
+        }
+      });
+    }
+
     function validateForm() {
       const date = document.getElementById("date").value.trim();
       const time = document.getElementById("time").value.trim();
@@ -170,21 +183,13 @@
         return false;
       }
 
-      // Prevent overlapping schedule (locked to 1 per hour per date)
-      if (bookedAppointments[date] && bookedAppointments[date].includes(time)) {
-        alert("This time slot is already booked. Please choose another.");
-        return false;
-      }
-
       if (!bookedAppointments[date]) {
         bookedAppointments[date] = [];
       }
       bookedAppointments[date].push(time);
 
-      // Queue number = position in that day's list
       const queueNumber = bookedAppointments[date].length;
 
-      // Show confirmation box
       const confirmationBox = document.getElementById("confirmationBox");
       confirmationBox.innerHTML = `
         <strong>Appointment submitted successfully!</strong><br>
@@ -194,14 +199,11 @@
       `;
       confirmationBox.classList.remove("hidden");
 
-      // Reset form for another submission
       document.getElementById("appointmentForm").reset();
-      prevStep();
-
-      return false; // Prevent page reload
+      prevStep(); 
+      return false; 
     }
   </script>
 
 </body>
 </html>
-
