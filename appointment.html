@@ -6,12 +6,12 @@
   <title>Book Appointment - CHO</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-blue-50 font-sans">
+<body class="bg-white font-sans">
 
   <!-- Top Navbar -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="container mx-auto flex justify-between items-center p-4">
-      <h1 class="text-xl font-bold">CITY HEALTH OFFICE</h1>
+      <h1 class="text-xl font-bold">CITY HEALTH CLINIC</h1>
     </div>
   </header>
 
@@ -20,7 +20,7 @@
     <h2 class="text-3xl font-bold text-blue-900 text-center">Book an Appointment</h2>
     <p class="text-gray-600 text-center mt-2">Fill in the form below to schedule your visit.</p>
     
-    <form id="appointmentForm" class="bg-white max-w-2xl mx-auto mt-10 p-8 rounded-lg shadow-lg border border-yellow-400" onsubmit="return validateForm()">
+    <form id="appointmentForm" class="bg-white max-w-2xl mx-auto mt-10 p-8 rounded-lg shadow-lg border border-blue-200" onsubmit="return validateForm()">
 
       <!-- Step 1: Personal Info -->
       <div id="step1" class="form-step">
@@ -87,7 +87,7 @@
         </div>
 
         <!-- Next Button -->
-        <button type="button" onclick="nextStep()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+        <button type="button" onclick="nextStep()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-yellow-500 transition duration-300">
           Next
         </button>
       </div>
@@ -120,32 +120,20 @@
 
         <!-- Back + Submit Buttons -->
         <div class="flex justify-between">
-          <button type="button" onclick="prevStep()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">
+          <button type="button" onclick="prevStep()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-300">
             Back
           </button>
-          <button type="submit" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600">
+          <button type="submit" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300">
             Submit
           </button>
         </div>
       </div>
 
     </form>
-
-    <!-- Queue Display -->
-    <div id="queueDisplay" class="hidden mt-8 text-center">
-      <h3 class="text-2xl font-bold text-blue-900">Your Queue Number</h3>
-      <p class="text-xl text-red-600 mt-2">#<span id="queueNumber"></span></p>
-      <p class="text-gray-700 mt-2">Please arrive 10 min before for your appointment, THANK YOU have a GREAT DAY.</p>
-    </div>
   </div>
 
   <script>
-    // Disable today and past dates
-    const dateInput = document.getElementById("date");
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    dateInput.min = tomorrow.toISOString().split("T")[0];
+    let bookedAppointments = {}; // Store appointments by date and time
 
     function nextStep() {
       const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
@@ -157,6 +145,12 @@
       }
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
+
+      // Restrict calendar: disable today and past
+      const dateInput = document.getElementById("date");
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      dateInput.min = today.toISOString().split("T")[0];
     }
 
     function prevStep() {
@@ -164,55 +158,31 @@
       document.getElementById("step1").classList.remove("hidden");
     }
 
-    // Queue tracking with reset per date
-    function getQueueNumber(selectedDate) {
-      let storedDate = localStorage.getItem("queueDate");
-      let queueCounter = parseInt(localStorage.getItem("queueCounter")) || 0;
-
-      if (storedDate !== selectedDate) {
-        // New day → reset counter
-        queueCounter = 1;
-      } else {
-        // Same day → continue
-        queueCounter++;
-      }
-
-      // Save back to storage
-      localStorage.setItem("queueDate", selectedDate);
-      localStorage.setItem("queueCounter", queueCounter);
-
-      return queueCounter;
-    }
-
     function validateForm() {
-      const requiredStep2 = ["date", "time"];
-      for (let id of requiredStep2) {
-        if (!document.getElementById(id).value.trim()) {
-          alert("Please select a date and time before submitting.");
-          return false;
-        }
-      }
+      const date = document.getElementById("date").value.trim();
+      const time = document.getElementById("time").value.trim();
 
-      const selectedDate = new Date(document.getElementById("date").value);
-      if (selectedDate <= today) {
-        alert("You cannot book for today or past days. Please choose a future date.");
+      if (!date || !time) {
+        alert("Please select a date and time before submitting.");
         return false;
       }
 
-      // Confirm before submitting
-      if (!confirm("Are you sure all information is correct?")) {
+      // Prevent overlapping schedule
+      if (bookedAppointments[date] && bookedAppointments[date].includes(time)) {
+        alert("This time slot is already booked. Please choose another.");
         return false;
       }
 
-      // Generate queue number per date
-      const bookingDate = document.getElementById("date").value;
-      const queueNumber = getQueueNumber(bookingDate);
+      if (!bookedAppointments[date]) {
+        bookedAppointments[date] = [];
+      }
+      bookedAppointments[date].push(time);
 
-      document.getElementById("queueNumber").textContent = queueNumber;
-      document.getElementById("appointmentForm").classList.add("hidden");
-      document.getElementById("queueDisplay").classList.remove("hidden");
+      // Queue number = position in that day's list
+      const queueNumber = bookedAppointments[date].length;
 
-      return false; // prevent actual submission for demo
+      alert(`Appointment submitted successfully!\n\nYour Queue Number: ${queueNumber}\nDate: ${date}\nTime: ${time}`);
+      return true;
     }
   </script>
 
