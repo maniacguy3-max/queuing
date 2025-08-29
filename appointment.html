@@ -129,99 +129,131 @@
   </div>
 
   <script>
-    const allTimes = [
-      "6:00 AM","7:00 AM","8:00 AM","9:00 AM","10:00 AM",
-      "11:00 AM","12:00 PM","1:00 PM","2:00 PM",
-      "3:00 PM","4:00 PM","5:00 PM"
-    ];
+  const allTimes = [
+    "6:00 AM","7:00 AM","8:00 AM","9:00 AM","10:00 AM",
+    "11:00 AM","12:00 PM","1:00 PM","2:00 PM",
+    "3:00 PM","4:00 PM","5:00 PM"
+  ];
 
-    function nextStep() {
-      const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
-      for (let id of requiredStep1) {
-        if (!document.getElementById(id).value.trim()) {
-          alert("Please fill in all required fields before proceeding.");
-          return;
-        }
+  function nextStep() {
+    const requiredStep1 = ["lastName", "firstName", "age", "sex", "phone", "symptomsCategory"];
+    for (let id of requiredStep1) {
+      if (!document.getElementById(id).value.trim()) {
+        alert("Please fill in all required fields before proceeding.");
+        return;
       }
-      document.getElementById("step1").classList.add("hidden");
-      document.getElementById("step2").classList.remove("hidden");
+    }
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
 
-      const dateInput = document.getElementById("date");
-      const today = new Date();
-      today.setDate(today.getDate() + 1);
-      dateInput.min = today.toISOString().split("T")[0];
+    const dateInput = document.getElementById("date");
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    dateInput.min = today.toISOString().split("T")[0];
+  }
+
+  function prevStep() {
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step1").classList.remove("hidden");
+  }
+
+  function updateTimeOptions() {
+    const timeSelect = document.getElementById("time");
+    timeSelect.innerHTML = `<option value="">-- Select a Time --</option>`;
+    allTimes.forEach(t => {
+      let option = document.createElement("option");
+      option.value = t;
+      option.textContent = t;
+      timeSelect.appendChild(option);
+    });
+  }
+
+  // ✅ Firebase integration with overlap check
+  function validateForm() {
+    const date = document.getElementById("date").value.trim();
+    const time = document.getElementById("time").value.trim();
+
+    if (!date || !time) {
+      alert("Please select a date and time before submitting.");
+      return false;
     }
 
-    function prevStep() {
-      document.getElementById("step2").classList.add("hidden");
-      document.getElementById("step1").classList.remove("hidden");
-    }
+    const appointmentData = {
+      lastName: document.getElementById("lastName").value.trim(),
+      firstName: document.getElementById("firstName").value.trim(),
+      middleName: document.getElementById("middleName").value.trim(),
+      age: document.getElementById("age").value.trim(),
+      sex: document.getElementById("sex").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      symptomsCategory: document.getElementById("symptomsCategory").value.trim(),
+      details: document.getElementById("details").value.trim(),
+      date,
+      time,
+      timestamp: new Date().toISOString()
+    };
 
-    function updateTimeOptions() {
-      const timeSelect = document.getElementById("time");
-      timeSelect.innerHTML = `<option value="">-- Select a Time --</option>`;
-      allTimes.forEach(t => {
-        let option = document.createElement("option");
-        option.value = t;
-        option.textContent = t;
-        timeSelect.appendChild(option);
-      });
-    }
-
-    // ✅ Firebase integration
-    function validateForm() {
-      const date = document.getElementById("date").value.trim();
-      const time = document.getElementById("time").value.trim();
-
-      if (!date || !time) {
-        alert("Please select a date and time before submitting.");
-        return false;
-      }
-
-      const appointmentData = {
-        lastName: document.getElementById("lastName").value.trim(),
-        firstName: document.getElementById("firstName").value.trim(),
-        middleName: document.getElementById("middleName").value.trim(),
-        age: document.getElementById("age").value.trim(),
-        sex: document.getElementById("sex").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        symptomsCategory: document.getElementById("symptomsCategory").value.trim(),
-        details: document.getElementById("details").value.trim(),
-        date,
-        time,
-        timestamp: new Date().toISOString()
-      };
-
-      fetch("https://clinic-for-cho-queue-default-rtdb.asia-southeast1.firebasedatabase.app/appointments.json", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(appointmentData)
-      })
+    // 🔎 Step 1: Check existing appointments for that date
+    fetch("https://clinic-for-cho-queue-default-rtdb.asia-southeast1.firebasedatabase.app/appointments.json")
       .then(res => res.json())
       .then(data => {
-        const confirmationBox = document.getElementById("confirmationBox");
-        confirmationBox.innerHTML = `
-          <strong>Appointment submitted successfully!</strong><br>
-          <b>Date:</b> ${appointmentData.date}<br>
-          <b>Time:</b> ${appointmentData.time}
-        `;
-        confirmationBox.classList.remove("hidden");
+        let alreadyBooked = false;
+        let queueNumber = 1; // default first
 
-        document.getElementById("appointmentForm").reset();
-        prevStep();
+        if (data) {
+          const appointments = Object.values(data);
+          const sameDateAppointments = appointments.filter(a => a.date === date);
+
+          // check if same time already taken
+          alreadyBooked = sameDateAppointments.some(a => a.time === time);
+
+          // queue number = next number for that date
+          queueNumber = sameDateAppointments.length + 1;
+        }
+
+        if (alreadyBooked) {
+          alert("This time slot is already booked. Please choose another.");
+          return;
+        }
+
+        // 🔎 Step 2: Save appointment since it's available
+        fetch("https://clinic-for-cho-queue-default-rtdb.asia-southeast1.firebasedatabase.app/appointments.json", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...appointmentData, queueNumber })
+        })
+        .then(res => res.json())
+        .then(() => {
+          const confirmationBox = document.getElementById("confirmationBox");
+          confirmationBox.innerHTML = `
+            <strong>Appointment submitted successfully!</strong><br>
+            Your <b>Queue Number:</b> ${queueNumber}<br>
+            <b>Date:</b> ${appointmentData.date}<br>
+            <b>Time:</b> ${appointmentData.time}
+          `;
+          confirmationBox.classList.remove("hidden");
+
+          document.getElementById("appointmentForm").reset();
+          prevStep();
+        })
+        .catch(err => {
+          alert("Error submitting appointment. Please try again.");
+          console.error(err);
+        });
+
       })
       .catch(err => {
-        alert("Error submitting appointment. Please try again.");
+        alert("Error checking existing appointments. Please try again.");
         console.error(err);
       });
 
-      return false; 
-    }
-  </script>
+    return false; 
+  }
+</script>
 
 </body>
 </html>
+
 
 
 
