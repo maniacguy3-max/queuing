@@ -9,7 +9,7 @@
     .wrap { max-width:980px; margin:36px auto; background:#fff; border-radius:14px; box-shadow:0 10px 25px rgba(0,0,0,.06); padding:20px; }
     h1 { margin:0 0 14px; font-size:22px; }
     .toolbar { display:flex; gap:10px; align-items:center; margin:12px 0 16px; }
-    input, select { padding:8px 10px; border:1px solid #d9e0ea; border-radius:8px; }
+    input, select, button { padding:8px 10px; border:1px solid #d9e0ea; border-radius:8px; background:#fff; cursor:pointer; }
     table { width:100%; border-collapse:collapse; }
     th, td { border-bottom:1px solid #eef2f7; padding:10px 8px; text-align:left; font-size:14px; }
     th { background:#f9fbff; font-weight:700; }
@@ -104,7 +104,14 @@
     onValue(ref(db, "appointments"), (snap) => {
       all = [];
       if (snap.exists()) {
-        snap.forEach(ch => all.push(ch.val()));
+        snap.forEach(dateNode => {
+          const dateKey = dateNode.key; // parent key = date
+          dateNode.forEach(appt => {
+            let item = appt.val();
+            if (!item.date) item.date = dateKey; // ensure date always exists
+            all.push(item);
+          });
+        });
       }
       render();
     });
