@@ -50,7 +50,7 @@
   <!-- Firebase (v10 modular) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAlQ2h3WdhMHVl9nwz_Ug3ejscxtWuEtlE",
@@ -100,8 +100,7 @@
         : `<tr><td colspan="9">No appointments${d ? " for "+d : ""}.</td></tr>`;
     }
 
-    // Live data
-    onValue(ref(db, "appointments"), (snap) => {
+    function processSnapshot(snap) {
       all = [];
       if (snap.exists()) {
         snap.forEach(dateNode => {
@@ -114,10 +113,22 @@
         });
       }
       render();
+    }
+
+    // Live updates
+    onValue(ref(db, "appointments"), (snap) => {
+      processSnapshot(snap);
     });
+
+    // Fallback timed refresh every 30s
+    setInterval(async () => {
+      const snap = await get(ref(db, "appointments"));
+      processSnapshot(snap);
+    }, 30000);
 
     filterDate.addEventListener("change", render);
     clearBtn.addEventListener("click", () => { filterDate.value = ""; render(); });
   </script>
 </body>
 </html>
+
