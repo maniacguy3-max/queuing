@@ -103,13 +103,8 @@
     function processSnapshot(snap) {
       all = [];
       if (snap.exists()) {
-        snap.forEach(dateNode => {
-          const dateKey = dateNode.key; // parent key = date
-          dateNode.forEach(appt => {
-            let item = appt.val();
-            if (!item.date) item.date = dateKey; // ensure date always exists
-            all.push(item);
-          });
+        snap.forEach(appt => {
+          all.push(appt.val());
         });
       }
       render();
@@ -120,7 +115,7 @@
       processSnapshot(snap);
     });
 
-    // Fallback timed refresh every 30s
+    // Fallback refresh every 30s
     setInterval(async () => {
       const snap = await get(ref(db, "appointments"));
       processSnapshot(snap);
@@ -131,4 +126,3 @@
   </script>
 </body>
 </html>
-
