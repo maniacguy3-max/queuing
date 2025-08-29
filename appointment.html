@@ -17,7 +17,9 @@
              alt="Logo" class="w-14 h-14 rounded-full border border-gray-300">
         <h1 class="text-2xl font-extrabold text-blue-800">CITY HEALTH OFFICE</h1>
       </div>
-      
+    </div>
+  </header>
+  
   <!-- Main Division -->
   <div class="container mx-auto px-6 py-16">
     <h2 class="text-3xl font-bold text-blue-900 text-center">Book an Appointment</h2>
@@ -127,7 +129,6 @@
   </div>
 
   <script>
-    let bookedAppointments = {}; 
     const allTimes = [
       "6:00 AM","7:00 AM","8:00 AM","9:00 AM","10:00 AM",
       "11:00 AM","12:00 PM","1:00 PM","2:00 PM",
@@ -157,26 +158,17 @@
     }
 
     function updateTimeOptions() {
-      const date = document.getElementById("date").value;
       const timeSelect = document.getElementById("time");
-
-      // Clear old options
       timeSelect.innerHTML = `<option value="">-- Select a Time --</option>`;
-
-      // Get booked times for that date
-      const booked = bookedAppointments[date] || [];
-
-      // Show only available times
       allTimes.forEach(t => {
-        if (!booked.includes(t)) {
-          let option = document.createElement("option");
-          option.value = t;
-          option.textContent = t;
-          timeSelect.appendChild(option);
-        }
+        let option = document.createElement("option");
+        option.value = t;
+        option.textContent = t;
+        timeSelect.appendChild(option);
       });
     }
 
+    // ✅ Firebase integration
     function validateForm() {
       const date = document.getElementById("date").value.trim();
       const time = document.getElementById("time").value.trim();
@@ -186,29 +178,51 @@
         return false;
       }
 
-      if (!bookedAppointments[date]) {
-        bookedAppointments[date] = [];
-      }
-      bookedAppointments[date].push(time);
+      const appointmentData = {
+        lastName: document.getElementById("lastName").value.trim(),
+        firstName: document.getElementById("firstName").value.trim(),
+        middleName: document.getElementById("middleName").value.trim(),
+        age: document.getElementById("age").value.trim(),
+        sex: document.getElementById("sex").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        symptomsCategory: document.getElementById("symptomsCategory").value.trim(),
+        details: document.getElementById("details").value.trim(),
+        date,
+        time,
+        timestamp: new Date().toISOString()
+      };
 
-      const queueNumber = bookedAppointments[date].length;
+      fetch("https://clinic-for-cho-queue-default-rtdb.asia-southeast1.firebasedatabase.app/appointments.json", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(appointmentData)
+      })
+      .then(res => res.json())
+      .then(data => {
+        const confirmationBox = document.getElementById("confirmationBox");
+        confirmationBox.innerHTML = `
+          <strong>Appointment submitted successfully!</strong><br>
+          <b>Date:</b> ${appointmentData.date}<br>
+          <b>Time:</b> ${appointmentData.time}
+        `;
+        confirmationBox.classList.remove("hidden");
 
-      const confirmationBox = document.getElementById("confirmationBox");
-      confirmationBox.innerHTML = `
-        <strong>Appointment submitted successfully!</strong><br>
-        Your <b>Queue Number:</b> ${queueNumber}<br>
-        <b>Date:</b> ${date}<br>
-        <b>Time:</b> ${time}
-      `;
-      confirmationBox.classList.remove("hidden");
+        document.getElementById("appointmentForm").reset();
+        prevStep();
+      })
+      .catch(err => {
+        alert("Error submitting appointment. Please try again.");
+        console.error(err);
+      });
 
-      document.getElementById("appointmentForm").reset();
-      prevStep(); 
       return false; 
     }
   </script>
 
 </body>
 </html>
+
+
 
 
